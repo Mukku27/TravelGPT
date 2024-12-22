@@ -3,13 +3,13 @@ import os
 from dotenv import load_dotenv
 from phi.agent import Agent
 from phi.model.groq import Groq  # Assuming this is how you import Groq Llama
-from duckduckgo_search import DDGS  #Import duckduckgo search library
+from serpapi import GoogleSearch  #Import SerpAPI library
 
 load_dotenv()
-def duckduckgo_search(query):
-    """Searches DuckDuckGo and returns the results."""
-    ddg = DDGS()
-    results = ddg.search(query)
+def serp_api_search(query):
+    """Searches using SerpAPI and returns the results."""
+    search = GoogleSearch({"q": query, "api_key": os.getenv("SERP_API_KEY")})
+    results = search.get_dict()
     return results
 
 # Initialize page config
@@ -142,14 +142,14 @@ loading_container = st.empty()
 
 try:
     # Set API keys in environment variables
-    os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
-    #os.environ["SERP_API_KEY"] = serpapi_key #Removed SerpAPI Key environment variable setting
+    os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+    os.environ["SERP_API_KEY"] = os.getenv("SERP_API_KEY")
 
-    # Initialize travel agent with Groq Llama model and DuckDuckGo search
+    # Initialize travel agent with Groq Llama model and SerpAPI search
     travel_agent = Agent(
         name="Travel Planner",
         model=Groq(id="llama-3.3-70b-versatile"),  # Adjust if necessary based on actual import
-        tools=[duckduckgo_search], #Replaced SerpApiTools with ddg
+        tools=[serp_api_search], #Replaced duckduckgo_search with serp_api_search
         instructions=[
             "You are a travel planning assistant using Groq Llama.",
             "Help users plan their trips by researching destinations, finding attractions, suggesting accommodations, and providing transportation options.",
