@@ -3,13 +3,14 @@ import os
 from dotenv import load_dotenv
 from phi.agent import Agent
 from phi.model.groq import Groq  # Assuming this is how you import Groq Llama
-from serpapi import GoogleSearch  #Import SerpAPI library
+from duckduckgo_search import DDGS  #Import duckduckgo search library
+from datetime import datetime, timedelta
 
 load_dotenv()
-def serp_api_search(query):
-    """Searches using SerpAPI and returns the results."""
-    search = GoogleSearch({"q": query, "api_key": os.getenv("SERP_API_KEY")})
-    results = search.get_dict()
+def duckduckgo_search(query):
+    """Searches DuckDuckGo and returns the results."""
+    ddg = DDGS()
+    results = ddg.search(query)
     return results
 
 # Initialize page config
@@ -103,6 +104,7 @@ with st.sidebar:
     
     destination = st.text_input("🌍 Where would you like to go?", "")
     duration = st.number_input("📅 How many days?", min_value=1, max_value=30, value=5)
+    start_date = st.date_input("Start Date", datetime.now().date())
     
     budget = st.select_slider(
         "💰 What's your budget level?",
@@ -130,6 +132,8 @@ with st.sidebar:
     else:
         # If "All" is not selected, use only the specifically selected styles
         travel_style = selected_styles
+    present_location = st.text_input("Your Present Location", "")
+
 
 # Initialize session state variables
 if 'travel_plan' not in st.session_state:
@@ -142,14 +146,14 @@ loading_container = st.empty()
 
 try:
     # Set API keys in environment variables
-    os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
-    os.environ["SERP_API_KEY"] = os.getenv("SERP_API_KEY")
+    os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
+    #os.environ["SERP_API_KEY"] = serpapi_key #Removed SerpAPI Key environment variable setting
 
-    # Initialize travel agent with Groq Llama model and SerpAPI search
+    # Initialize travel agent with Groq Llama model and DuckDuckGo search
     travel_agent = Agent(
         name="Travel Planner",
         model=Groq(id="llama-3.3-70b-versatile"),  # Adjust if necessary based on actual import
-        tools=[serp_api_search], #Replaced duckduckgo_search with serp_api_search
+        tools=[duckduckgo_search], #Replaced SerpApiTools with ddg
         instructions=[
             "You are a travel planning assistant using Groq Llama.",
             "Help users plan their trips by researching destinations, finding attractions, suggesting accommodations, and providing transportation options.",
@@ -179,7 +183,8 @@ try:
         if destination:
             try:
                 with st.spinner("🔍 Researching and planning your trip..."):
-                    prompt = f"""Create a comprehensive travel plan for {destination} for {duration} days.
+                    end_date = start_date + timedelta(days=duration)
+                    prompt = f"""Create a comprehensive travel plan for {destination} for {duration} days starting from {start_date} and ending on {end_date}.
 
     Travel Preferences:
     - Budget Level: {budget}
@@ -189,7 +194,7 @@ try:
 
     1. 🌞 Best Time to Visit
     - Seasonal highlights
-    - Weather considerations
+    - Weather considerations for each day from {start_date} to {end_date} with source links. If the weather is bad on any particular day, suggest alternative dates with good weather.
 
     2. 🏨 Accommodation Recommendations
     - {budget} range hotels/stays
@@ -214,6 +219,10 @@ try:
     6. 💰 Estimated Total Trip Cost
     - Breakdown of expenses
     - Money-saving tips
+
+    7. 🚂 Transportation from {present_location} to {destination}
+    - Trains/buses available with timings and booking links for travel dates between {start_date} and {end_date}.
+
 
     Please provide source and relevant links without fail.
 
