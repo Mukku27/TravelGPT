@@ -140,25 +140,120 @@ if 'qa_expanded' not in st.session_state:
 # Add loading state container
 loading_container = st.empty()
 
+class SpecializedAgent:
+    def __init__(self, name, instructions):
+        self.agent = Agent(
+            name=name,
+            model=Groq(id="llama-3.3-70b-versatile"),
+            tools=[serp_api_search],
+            instructions=instructions,
+            show_tool_calls=True,
+            markdown=True
+        )
+
+    def run(self, prompt):
+        return self.agent.run(prompt)
+def create_specialized_agents():
+    """Create and return dictionary of specialized travel agents"""
+    return {
+        'time_agent': SpecializedAgent(
+            "Best Time Advisor",
+            ["You are a specialist in seasonal travel timing and weather patterns.",
+             "Focus on providing detailed information about best times to visit destinations.",
+             "Include seasonal events, weather considerations, and peak/off-peak timing."]
+        ),
+        'accommodation_agent': SpecializedAgent(
+            "Accommodation Expert",
+            ["You are an expert in finding and recommending accommodations.",
+             "Focus on matching lodging options to budget levels and preferences.",
+             "Always include actual links and proximity to attractions."]
+        ),
+        'day_by_day_agent': SpecializedAgent(
+            "Day-by-Day Itinerary Agent",
+            ["You are responsible for creating a detailed daily itinerary.",
+             "Focus on including must-visit attractions and local experiences aligned with travel styles.",
+             "Ensure a balance of activities and relaxation time."]
+        ),
+        'culinary_agent': SpecializedAgent(
+            "Culinary Experiences Agent",
+            ["You are an expert in highlighting local cuisine and recommending restaurants.",
+             "Focus on suggesting food experiences that match the travel style.",
+             "Include a mix of traditional and modern culinary experiences."]
+        ),
+        'practical_tips_agent': SpecializedAgent(
+            "Practical Travel Tips Agent",
+            ["You offer advice on local transportation options and cultural etiquette.",
+             "Focus on providing safety recommendations and an estimated daily budget breakdown.",
+             "Ensure travelers are prepared for their trip."]
+        ),
+        'estimated_cost_agent': SpecializedAgent(
+            "Estimated Total Trip Cost Agent",
+            ["You are responsible for calculating and providing a breakdown of expenses.",
+             "Focus on offering money-saving tips and budgeting advice.",
+             "Ensure travelers have a clear understanding of their trip's financial requirements."]
+        ),
+    }
+
+def coordinate_travel_plan(agents, destination, duration, budget, travel_style):
+    """Coordinate between agents to create comprehensive travel plan"""
+    
+    # Get best time information
+    time_prompt = f"Analyze the best time to visit {destination}, considering weather patterns and seasonal events."
+    time_info = agents['time_agent'].run(time_prompt)
+    
+    # Get accommodation recommendations
+    accom_prompt = f"Find {budget} level accommodations in {destination} for {duration} days."
+    accom_info = agents['accommodation_agent'].run(accom_prompt)
+    
+    # Get day-by-day itinerary
+    day_by_day_prompt = f"Create a detailed daily itinerary for {duration} days in {destination}, focusing on {', '.join(travel_style)}."
+    day_by_day_info = agents['day_by_day_agent'].run(day_by_day_prompt)
+    
+    # Get culinary experiences
+    culinary_prompt = f"Recommend local cuisine and restaurants in {destination} that match the travel style: {', '.join(travel_style)}."
+    culinary_info = agents['culinary_agent'].run(culinary_prompt)
+    
+    # Get practical travel tips
+    practical_tips_prompt = f"Provide practical travel tips for {destination}, including transportation, cultural etiquette, and safety recommendations."
+    practical_tips_info = agents['practical_tips_agent'].run(practical_tips_prompt)
+    
+    # Get estimated total trip cost
+    estimated_cost_prompt = f"Estimate the total cost of a trip to {destination} for {duration} days, considering {budget} level accommodations and activities."
+    estimated_cost_info = agents['estimated_cost_agent'].run(estimated_cost_prompt)
+    
+    # Combine all responses
+    complete_plan = f"""
+    # Complete Travel Plan for {destination}
+
+    {time_info}
+    
+    {accom_info}
+    
+    {day_by_day_info}
+    
+    {culinary_info}
+    
+    {practical_tips_info}
+    
+    {estimated_cost_info}
+    
+    # ... Other sections ...
+    """
+    
+    return complete_plan
+
+def coordinate_agent_response(agents, context_question):
+    """Coordinate between agents to answer a specific question about the travel plan"""
+    # Assuming the question is related to the travel plan, use the 'practical_tips_agent' for a response
+    response = agents['practical_tips_agent'].run(context_question)
+    return response
+
 try:
     # Set API keys in environment variables
     os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
     os.environ["SERP_API_KEY"] = os.getenv("SERP_API_KEY")
 
-    # Initialize travel agent with Groq Llama model and SerpAPI search
-    travel_agent = Agent(
-        name="Travel Planner",
-        model=Groq(id="llama-3.3-70b-versatile"),  # Adjust if necessary based on actual import
-        tools=[serp_api_search], #Replaced duckduckgo_search with serp_api_search
-        instructions=[
-            "You are a travel planning assistant using Groq Llama.",
-            "Help users plan their trips by researching destinations, finding attractions, suggesting accommodations, and providing transportation options.",
-            "Give me relevant live Links of each places and hotels you provide by searching on internet (It's important)",
-            "Always verify information is current before making recommendations."
-        ],
-        show_tool_calls=True,
-        markdown=True
-    )
+    specialized_agents = create_specialized_agents()
 
     # Main UI
     st.title("🌎 AI Travel Planner")
@@ -179,57 +274,17 @@ try:
         if destination:
             try:
                 with st.spinner("🔍 Researching and planning your trip..."):
-                    prompt = f"""Create a comprehensive travel plan for {destination} for {duration} days.
-
-    Travel Preferences:
-    - Budget Level: {budget}
-    - Travel Styles: {', '.join(travel_style)}
-
-    Please provide a detailed itinerary that includes:
-
-    1. 🌞 Best Time to Visit
-    - Seasonal highlights
-    - Weather considerations
-
-    2. 🏨 Accommodation Recommendations
-    - {budget} range hotels/stays
-    - Locations and proximity to attractions
-
-    3. 🗺️ Day-by-Day Itinerary
-    - Detailed daily activities
-    - Must-visit attractions
-    - Local experiences aligned with travel styles
-
-    4. 🍽️ Culinary Experiences
-    - Local cuisine highlights
-    - Recommended restaurants
-    - Food experiences matching travel style
-
-    5. 💡 Practical Travel Tips
-    - Local transportation options
-    - Cultural etiquette
-    - Safety recommendations
-    - Estimated daily budget breakdown
-
-    6. 💰 Estimated Total Trip Cost
-    - Breakdown of expenses
-    - Money-saving tips
-
-    Please provide source and relevant links without fail.
-
-    Format the response in a clear, easy-to-read markdown format with headings and bullet points.
-                    """
-                    response = travel_agent.run(prompt)
-                    if hasattr(response, 'content'):
-                        clean_response = response.content.replace('∣', '|').replace('\n\n\n', '\n\n')
-                        st.session_state.travel_plan = clean_response
-                        st.markdown(clean_response)
-                    else:
-                        st.session_state.travel_plan = str(response)
-                        st.markdown(str(response))
+                    travel_plan = coordinate_travel_plan(
+                        specialized_agents,
+                        destination,
+                        duration,
+                        budget,
+                        travel_style
+                    )
+                    st.session_state.travel_plan = travel_plan
+                    st.markdown(travel_plan)
             except Exception as e:
                 st.error(f"Error generating travel plan: {str(e)}")
-                st.info("Please try again in a few moments.")
         else:
             st.warning("Please enter a destination")
 
@@ -244,7 +299,6 @@ try:
         st.session_state.qa_expanded = True
         
         question = st.text_input("Your question:", placeholder="What would you like to know about your trip?")
-        
         if st.button("Get Answer", key="qa_button"):
             if question and st.session_state.travel_plan:
                 with st.spinner("🔍 Finding answer..."):
@@ -258,11 +312,9 @@ try:
                         
                         Provide a focused, concise answer that relates to the existing travel plan if possible.
                         """
-                        response = travel_agent.run(context_question)
-                        if hasattr(response, 'content'):
-                            st.markdown(response.content)
-                        else:
-                            st.markdown(str(response))
+                        # Utilize the specialized_agents framework to get a response
+                        response = coordinate_agent_response(specialized_agents, context_question)
+                        st.markdown(response)
                     except Exception as e:
                         st.error(f"Error getting answer: {str(e)}")
             elif not st.session_state.travel_plan:
