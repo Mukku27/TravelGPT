@@ -126,6 +126,10 @@ Provide a structured markdown response that includes the following elements:
  -Highlight seasonal considerations for visiting {destination}.
  -Day-by-day weather forecast from {start_date} to {end_date}
  -Alternative date suggestions if weather is unfavorable .Include source links for all weather data.
+ -Offer clothing recommendations for each day based on weather forecasts of that particular day be accurate . For example:
+    -Warm jackets and boots for cold, snowy days.
+    -Light, breathable clothing for warm, sunny days.
+    -Raincoats and umbrellas for rainy conditions.
 
 🏨 Accommodation Recommendations:
  -Suggest accommodations within the {budget} range.
