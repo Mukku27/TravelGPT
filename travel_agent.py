@@ -103,8 +103,8 @@ with st.sidebar:
     #serpapi_key = st.text_input("🔑 Enter your SerpAPI Key", type="password") #Removed SerpAPI Key input
     
     destination = st.text_input("🌍 Where would you like to go?", "")
-    duration = st.number_input("📅 How many days?", min_value=1, max_value=30, value=5)
     start_date = st.date_input("Start Date", datetime.now().date())
+    end_date = st.date_input("End Date", datetime.now().date() + timedelta(days=5))
     
     budget = st.select_slider(
         "💰 What's your budget level?",
@@ -116,7 +116,7 @@ with st.sidebar:
         st.session_state.travel_style = []
     
     # Define all available travel styles
-    all_styles = ["Culture", "Nature", "Adventure", "Relaxation", "Food", "Shopping"]
+    all_styles = ["Culture", "Nature", "Adventure", "Relaxation", "Food", "Shopping","Entertainment"]
     
     # Create multiselect with "All" option
     selected_styles = st.multiselect(
@@ -172,7 +172,8 @@ try:
             <h4>Welcome to your personal AI Travel Assistant! 🌟</h4>
             <p>Let me help you create your perfect travel itinerary based on your preferences.</p>
             <p><strong>Destination:</strong> {destination}</p>
-            <p><strong>Duration:</strong> {duration} days</p>
+            < p><strong>Start Date:</strong > {start_date}</p>
+            < p><strong>End Date:</strong > {end_date}</p>
             <p><strong>Budget:</strong> {budget}</p>
             <p><strong>Travel Styles:</strong> {', '.join(travel_style)}</p>
         </div>
@@ -183,7 +184,7 @@ try:
         if destination:
             try:
                 with st.spinner("🔍 Researching and planning your trip..."):
-                    end_date = start_date + timedelta(days=duration)
+                    duration = (end_date - start_date).days
                     prompt = f"""Create a comprehensive travel plan for {destination} for {duration} days starting from {start_date} and ending on {end_date}.
 
     Travel Preferences:
