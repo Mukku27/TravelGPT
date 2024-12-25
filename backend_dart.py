@@ -65,6 +65,10 @@ Provide a structured markdown response that includes the following elements:
  -Day-by-day weather forecast from {preferences.start_date} to {preferences.end_date}
  -Alternative date suggestions if weather is unfavorable 
  -Include source links for all weather data.
+ -Offer clothing recommendations for each day based on weather forecasts. For example:
+    -Warm jackets and boots for cold, snowy days.
+    -Light, breathable clothing for warm, sunny days.
+    -Raincoats and umbrellas for rainy conditions.
 
 🏨 Accommodation Recommendations:
  -Suggest accommodations within the {preferences.budget} range.
