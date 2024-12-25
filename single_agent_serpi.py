@@ -273,27 +273,30 @@ try:
     
     with qa_expander:
         st.session_state.qa_expanded = True
-        
-        question = st.text_input("Your question:", 
-                               placeholder="What would you like to know about your trip?")
-        if st.session_state.travel_plan:
-            st.markdown(st.session_state.travel_plan) 
+        question = st.text_input("Your question:", placeholder="What would you like to know about your trip?")
         if st.button("Get Answer", key="qa_button"):
             if question and st.session_state.travel_plan:
                 with st.spinner("🔍 Finding answer..."):
                     try:
-                        response = travel_agent.answer_question(
-                            question,
-                            st.session_state.travel_plan,
-                            destination
-                        )
-                        st.markdown(response)
+                        # Combine the original travel plan with the new question for context
+                        context_question = f"""
+                        I have a travel plan for {destination}. Here's the existing plan:
+                        {st.session_state.travel_plan}
+
+                        Now, please answer this specific question: {question}
+                        
+                        Provide a focused, concise answer that relates to the existing travel plan if possible.
+                        """
+                        response = travel_agent.run(context_question)
+                        if hasattr(response, 'content'):
+                            st.markdown(response.content)
+                        else:
+                            st.markdown(str(response))
                     except Exception as e:
                         st.error(f"Error getting answer: {str(e)}")
             elif not st.session_state.travel_plan:
                 st.warning("Please generate a travel plan first before asking questions.")
             else:
                 st.warning("Please enter a question")
-
 except Exception as e:
     st.error(f"Application Error: {str(e)}")
