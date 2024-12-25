@@ -122,37 +122,45 @@ Travel Styles: {', '.join(travel_style)}
 Your Task:
 Provide a structured markdown response that includes the following elements:
 
-🌞 Best Time to Visit
-Highlight seasonal considerations for visiting {destination}.
-Offer daily weather insights for the trip dates with sourced links.
-If poor weather is predicted, suggest alternate dates with better conditions.
-🏨 Accommodation Recommendations
-Suggest accommodations within the {budget} range.
-Include pros and cons, prices, amenities, and booking links.
-Specify proximity to key attractions, including map links.
-🗺️ Day-by-Day Itinerary
-Create a detailed itinerary for each day, broken into specific time slots (e.g., "9:00 AM–12:00 PM: Visit [Attraction]").
-Incorporate activities, attractions, and cultural experiences that align with the specified travel styles.
-Include booking links, costs, and recommendations for optimizing time and enjoyment.
-🍽️ Culinary Highlights
-Recommend local cuisines, restaurants, and food experiences.
-Provide suggestions based on the travel styles (e.g., street food, fine dining, or unique culinary tours).
-Include price ranges, opening hours, and reservation links, where available.
-💡 Practical Travel Tips
-List local and intercity transportation options (e.g., public transit, car rentals, taxis).
-Provide advice on cultural etiquette, local customs, and safety tips.
-Include a suggested daily budget breakdown for meals, transport, and activities.
-💰 Estimated Total Trip Cost
-Provide an itemized expense breakdown by category:
-Accommodation, transportation, meals, activities, and miscellaneous expenses.
-Offer budget-saving tips specific to {budget} constraints.
-🚂 Transportation Details
-Recommend transportation options from {present_location} to {destination}.
-Include schedules, pricing, duration, and booking links for trains, buses, or flights.
+🌞 Best Time to Visit:
+ -Highlight seasonal considerations for visiting {destination}.
+ -Day-by-day weather forecast from {start_date} to {end_date}
+ -Alternative date suggestions if weather is unfavorable .Include source links for all weather data.
+
+🏨 Accommodation Recommendations:
+ -Suggest accommodations within the {budget} range.
+ -Include pros and cons, prices, amenities, and booking links.
+ -Indicate the distance and travel time to major attractions.  Include map links where possible.
+ -Format your response using markdown with clear headings (##) and bullet points. Use [text](url) format for hyperlinks. Verify all links are functional before including them.
+
+🗺️ Day-by-Day Itinerary:
+ -Create a detailed itinerary for each day, broken into specific time slots (e.g., "9:00 AM–12:00 PM: Visit [Attraction]").
+ -Incorporate activities, attractions, and cultural experiences that align with the specified travel styles.
+ -Include booking links, costs, and recommendations for optimizing time and enjoyment.
+
+🍽️ Culinary Highlights:
+ -Recommend local cuisines, restaurants, and food experiences.
+ -Provide suggestions based on the travel styles (e.g., street food, fine dining, or unique culinary tours).
+ -Include price ranges, opening hours, and reservation links, where available.
+
+💡 Practical Travel Tips:
+ -List local and intercity transportation options (e.g., public transit, car rentals, taxis).
+ -Provide advice on cultural etiquette, local customs, and safety tips.
+ -Include a suggested daily budget breakdown for meals, transport, and activities.
+
+💰 Estimated Total Trip Cost:
+ -Provide an itemized expense breakdown by category:
+ -Accommodation, transportation, meals, activities, and miscellaneous expenses.
+ -Offer budget-saving tips specific to {budget} constraints.
+
+🚂 Transportation Details:
+ -Recommend transportation options from {present_location} to {destination}.
+ -Include schedules, pricing, duration, and booking links for trains, buses, or flights.
+
 Output Requirements:
-Use clear, easy-to-read markdown with headings and bullet points for each section.
-Provide source links, booking references, and maps wherever applicable.
-Ensure all details are actionable and well-organized to facilitate ease of planning.
+ -Use clear, easy-to-read markdown with headings and bullet points for each section.
+ -Provide source links, booking references, and maps wherever applicable.
+ -Ensure all details are actionable and well-organized to facilitate ease of planning.
 
 """
         response = self.agent.run(prompt)
