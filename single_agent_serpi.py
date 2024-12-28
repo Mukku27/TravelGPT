@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from phi.agent import Agent
 from phi.model.groq import Groq
 from phi.tools.serpapi_tools import SerpApiTools
+from phi.tools.duckduckgo import DuckDuckGo
 from datetime import datetime
 
 load_dotenv()
@@ -92,7 +93,7 @@ class TravelAgent:
         self.agent = Agent(
             name="Comprehensive Travel Assistant",
             model=Groq(id="llama-3.3-70b-versatile"),
-            tools=[SerpApiTools()],
+            tools=[SerpApiTools(), DuckDuckGo()],
             instructions=[
                 "You are a comprehensive travel planning assistant with expertise in all aspects of travel.",
                 "For every recommendation and data point, you MUST provide working source links.",
@@ -110,7 +111,8 @@ class TravelAgent:
                 "Organize information clearly with appropriate sections based on the query type."
             ],
             show_tool_calls=True,
-            markdown=True
+            markdown=True,
+            debug_mode=True
         )
     def generate_travel_plan(self, destination, present_location, start_date, end_date, budget, travel_style):
         prompt = f""" Act as a Personalized Travel Expert
@@ -134,13 +136,14 @@ Provide a structured markdown response that includes the following elements:
 🏨 Accommodation Recommendations:
  -Suggest accommodations within the {budget} range.
  -Include pros and cons, prices, amenities, and booking links.
- -Indicate the distance and travel time to major attractions.  Include map links where possible.
+ -Indicate the distance and travel time to major attractions. 
  -Format your response using markdown with clear headings (##) and bullet points. Use [text](url) format for hyperlinks. Verify all links are functional before including them.
 
 🗺️ Day-by-Day Itinerary:
  -Create a detailed itinerary for each day, broken into specific time slots (e.g., "9:00 AM–12:00 PM: Visit [Attraction]").
  -Incorporate activities, attractions, and cultural experiences that align with the specified travel styles.
  -Include booking links, costs, and recommendations for optimizing time and enjoyment.
+ -Include sites only if the sites exist 
 
 🍽️ Culinary Highlights:
  -Recommend local cuisines, restaurants, and food experiences.
