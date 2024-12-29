@@ -18,7 +18,73 @@ st.set_page_config(
 )
 
 # [Previous CSS styles remain the same]
-st.markdown("""
+st.markdown("""<style>
+    :root {
+        --primary-color: #2E86C1;
+        --accent-color: #FF6B6B;
+        --background-light: #F8F9FA;
+        --text-color: #2C3E50;
+        --hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .main {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .stButton > button {
+        width: 100%;
+        border-radius: 8px;
+        height: 3em;
+        background-color: var(--accent-color) !important;
+        color: white !important;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--hover-shadow);
+        background-color: #FF4A4A !important;
+    }
+
+    .sidebar .element-container {
+        background-color: var(--background-light);
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .stExpander {
+        background-color: #262730;
+        border-radius: 10px;
+        padding: 1rem;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .travel-summary {
+        background-color: #262730;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .travel-summary h4 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .spinner-text {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    </style>
     
 """, unsafe_allow_html=True)
 
