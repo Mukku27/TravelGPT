@@ -1,0 +1,7 @@
+flask
+phidata
+groq
+duckduckgo-search
+googlesearch-python 
+pycountry
+google-search-results
