@@ -349,103 +349,97 @@ try:
     
     
     # Update the weather monitor section in the main UI
+   # Update the weather monitor section in the main UI
     st.divider()
     if st.session_state.travel_plan:
         st.subheader("🌤️ Weather Monitor and Plan Adjustment")
+        
+        # Single column layout for location input
+        current_location = st.text_input(
+            "📍 Your current location in the itinerary:",
+            help="Enter your current location from the trip itinerary"
+        )
 
-        weather_check_col1, weather_check_col2 = st.columns(2)
-
-        with weather_check_col1:
-            current_location = st.text_input(
-                "📍 Your current location in the itinerary:",
-                help="Enter your current location from the trip itinerary"
-            )
-
-        with weather_check_col2:
-            if st.button("Check Weather & Update Plan"):
-                if not current_location:
-                    st.warning("Please enter your current location")
-                else:
-                    weather_data = get_weather(destination)
-
-                    if weather_data.get('success', False):
-                        # Create weather info container
-                        weather_container = st.container()
-                        with weather_container:
-                            st.markdown(f"""
-                                ### Current Weather in {destination}
-
-                                🌡️ **Temperature:** {weather_data['temperature']}°C  
-                                🌥️ **Conditions:** {weather_data['condition'].capitalize()}  
-                                🌍 **Country:** {weather_data['country']}
-                            """) 
-
-                            if weather_data['needs_update']:
-                                st.warning("""
-                                    ### ⚠️ Weather Alert
-                                    Current conditions may affect your planned activities. 
-                                    Here's an adjusted itinerary taking into account the weather:
-                                """)
- 
-                                # Create columns for plan comparison
-                                original_col, updated_col = st.columns(2)
-
-                                with original_col:
-                                    st.markdown("### Original Plan")
-                                    with st.expander("View Original Plan", expanded=False):
-                                        st.markdown(st.session_state.travel_plan)
-
-                                with updated_col:
-                                    st.markdown("### Weather-Adjusted Plan")
-                                    with st.spinner("Creating weather-adjusted itinerary..."):
-                                        # Get updated plan with weather considerations
-                                        updated_plan = travel_agent.update_travel_plan(
-                                            present_location=current_location,
-                                            extra_time=2,  # Adding buffer time for weather
-                                            travel_plan=st.session_state.travel_plan
-                                        )
-
-                                        # Show the changes
-                                        st.markdown(updated_plan)
-
-                                # Add action buttons
-                                action_col1, action_col2 = st.columns(2)
-                                with action_col1:
-                                    if st.button("✅ Accept Updated Plan", type="primary"):
-                                        st.session_state.travel_plan = updated_plan
-                                        st.success("Travel plan updated successfully!")
-
-                                with action_col2:
-                                    if st.button("❌ Keep Original Plan"):
-                                        st.info("Keeping original travel plan.")
-
-                                # Add weather recommendations
-                                st.markdown("""
-                                    ### 👔 Weather-Based Recommendations
-
-                                    Based on current conditions, consider:
-                                """)
-
-                                if weather_data['temperature'] < 5:
-                                    st.markdown("- 🧥 Pack warm layers and winter accessories")
-                                    st.markdown("- ⛄ Check indoor alternatives for outdoor activities")
-                                elif weather_data['temperature'] > 25:
-                                    st.markdown("- 👕 Pack light, breathable clothing")
-                                    st.markdown("- 🧴 Bring sun protection")
-
-                                if 'rain' in weather_data['condition'] or 'storm' in weather_data['condition']:
-                                    st.markdown("- ☔ Bring rain gear and waterproof accessories")
-                                    st.markdown("- 🏛️ Consider indoor backup activities")
-                            else:
-                                st.success("""
-                                    ### ✅ Perfect Weather!
-                                    Current conditions are favorable for your planned activities.
-                                    Continue with your original itinerary.
-                                """)
-                    else:
-                        st.error(f"Error checking weather: {weather_data.get('error', 'Unknown error')}")
+        # Weather check button directly below location input
+        if st.button("Check Weather & Update Plan"):
+            if not current_location:
+                st.warning("Please enter your current location")
             else:
-              st.warning("Please generate a travel plan first before checking weather conditions.")
+                weather_data = get_weather(destination)
 
+                if weather_data.get('success', False):
+                    # Weather information display
+                    st.markdown(f"""
+                        ### Current Weather in {destination}
+
+                        🌡️ **Temperature:** {weather_data['temperature']}°C  
+                        🌥️ **Conditions:** {weather_data['condition'].capitalize()}  
+                        🌍 **Country:** {weather_data['country']}
+                    """)
+
+                    # Plan comparison section
+                    if weather_data['needs_update']:
+                        st.warning("""
+                            ### ⚠️ Weather Alert
+                            Current conditions may affect your planned activities. 
+                            Here's an adjusted itinerary taking into account the weather:
+                        """)
+
+                        # Create columns for plan comparison
+                        original_col, updated_col = st.columns(2)
+
+                        with original_col:
+                            st.markdown("### Original Plan")
+                            with st.expander("View Original Plan", expanded=True):
+                                st.markdown(st.session_state.travel_plan)
+
+                        with updated_col:
+                            st.markdown("### Weather-Adjusted Plan")
+                            with st.spinner("Creating weather-adjusted itinerary..."):
+                                updated_plan = travel_agent.update_travel_plan(
+                                    present_location=current_location,
+                                    extra_time=2,  # Adding buffer time for weather
+                                    travel_plan=st.session_state.travel_plan
+                                )
+                                st.markdown(updated_plan)
+
+                        # Action buttons
+                        action_col1, action_col2 = st.columns(2)
+                        with action_col1:
+                            if st.button("✅ Accept Updated Plan", type="primary"):
+                                st.session_state.travel_plan = updated_plan
+                                st.success("Travel plan updated successfully!")
+
+                        with action_col2:
+                            if st.button("❌ Keep Original Plan"):
+                                st.info("Keeping original travel plan.")
+
+                        # Weather recommendations
+                        st.markdown("""
+                            ### 👔 Weather-Based Recommendations
+
+                            Based on current conditions, consider:
+                        """)
+
+                        if weather_data['temperature'] < 5:
+                            st.markdown("- 🧥 Pack warm layers and winter accessories")
+                            st.markdown("- ⛄ Check indoor alternatives for outdoor activities")
+                        elif weather_data['temperature'] > 25:
+                            st.markdown("- 👕 Pack light, breathable clothing")
+                            st.markdown("- 🧴 Bring sun protection")
+
+                        if 'rain' in weather_data['condition'] or 'storm' in weather_data['condition']:
+                            st.markdown("- ☔ Bring rain gear and waterproof accessories")
+                            st.markdown("- 🏛️ Consider indoor backup activities")
+                    else:
+                        st.success("""
+                            ### ✅ Perfect Weather!
+                            Current conditions are favorable for your planned activities.
+                            Continue with your original itinerary.
+                        """)
+                else:
+                    st.error(f"Error checking weather: {weather_data.get('error', 'Unknown error')}")
+    else:
+        st.warning("Please generate a travel plan first before checking weather conditions.")
 except Exception as e:
     st.error(f"Application Error: {str(e)}") 
